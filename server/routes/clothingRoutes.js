@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const upload = require('../middleware/uploadMiddleware');
-const { uploadClothes } = require('../controllers/clothingController');
+const wardrobeController = require('../controllers/clothingController');
 
-router.post('/upload-clothes', upload.array('clothes', 10), uploadClothes);
+// This must be a function reference, not wardrobeController.uploadImages()
+router.post('/upload-clothes', upload.array('clothes', 12), wardrobeController.uploadImages);
+
 
 module.exports = router;

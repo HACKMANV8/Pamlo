@@ -1,23 +1,36 @@
+
 const ClothingItem = require('../models/clothingItem');
+const path = require('path');
+const fs = require('fs');
 
-// Upload multiple clothes handler
-exports.uploadClothes = async (req, res) => {
+exports.uploadImages = async (req, res) => {
+  if (!req.files || req.files.length === 0)
+    return res.status(400).json({ message: 'No files uploaded' });
+
   try {
-    console.log('Files received:', req.files);
-    const files = req.files;
-    if (!files || files.length === 0) return res.status(400).json({ error: 'No files uploaded' });
-    const categories = req.body.categories || [];
-    const clothes = files.map((file, idx) => ({
-      filename: file.filename,
-      originalName: file.originalname,
-      category: categories[idx] || 'uncategorized'
-    }));
+    const uploadedItems = [];
 
-    const savedClothes = await ClothingItem.insertMany(clothes);
+    for (let file of req.files) {
+      const uniqueName = Date.now() + '-' + file.originalname;
+      const targetPath = path.join(__dirname, '../uploads/', uniqueName);
+      fs.renameSync(file.path, targetPath);
 
-    res.json({ message: 'Clothes uploaded successfully', clothes: savedClothes });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to upload clothes' });
+      // Save to MongoDB using only fields in your schema
+      const newItem = new ClothingItem({
+        filename: uniqueName,
+        originalName: file.originalname
+      });
+      await newItem.save();
+
+      uploadedItems.push(newItem); // <- collects saved items to return
+    }
+
+    res.status(200).json({
+      message: `${req.files.length} files uploaded successfully`,
+      files: uploadedItems // <- frontend can use this array
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error', error: err });
   }
 };
