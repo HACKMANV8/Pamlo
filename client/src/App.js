@@ -1,16 +1,24 @@
 import React from 'react';
-import UploadClothes from './components/UploadClothes';
-import ClothesGallery from './components/ClothesGallery';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import BottomNav from './components/BottomNav';
+import Home from './components/Home';
+import Upload from './components/UploadClothes';
+import Profile from './components/Profile';
+import ImageDetail from './components/ImageDetail';
 
 function App() {
   return (
-    <div style={{ padding: 40 }}>
-      <h1>FitGenie Wardrobe</h1>
-      <UploadClothes />
-      <hr style={{ margin: '40px 0' }} />
-      <h2>My Clothes</h2>
-      <ClothesGallery />
-    </div>
+    <Router>
+      <div style={{ paddingBottom: 80 }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/upload" element={<Upload />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/image/:id" element={<ImageDetail />} />
+        </Routes>
+        <BottomNav />
+      </div>
+    </Router>
   );
 }
 
