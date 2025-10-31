@@ -24,6 +24,7 @@ const Home = () => {
           Filter
         </button>
       </div>
+
       <ClothesGallery />
     </div>
   );

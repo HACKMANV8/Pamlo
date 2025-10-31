@@ -5,7 +5,7 @@ import Home from './components/Home';
 import Upload from './components/UploadClothes';
 import Profile from './components/Profile';
 import ImageDetail from './components/ImageDetail';
-
+import Filter from './components/Filter';
 function App() {
   return (
     <Router>
@@ -15,6 +15,8 @@ function App() {
           <Route path="/upload" element={<Upload />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/image/:id" element={<ImageDetail />} />
+          <Route path="/filter" element={<Filter />} />
+
         </Routes>
         <BottomNav />
       </div>
