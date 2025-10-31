@@ -34,3 +34,12 @@ exports.uploadImages = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err });
   }
 };
+exports.getAllClothes = async (req, res) => {
+  try {
+    const clothes = await ClothingItem.find().sort({ uploadedAt: -1 }); // latest first
+    res.json(clothes);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
