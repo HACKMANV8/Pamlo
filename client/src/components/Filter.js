@@ -84,8 +84,47 @@ const Filter = () => {
     setFilteredResults([]);
   };
 
-  // 📤 Apply filters -> fetch data from Supabase
-  const applyFilters = async () => {
+  // 📤 Apply filters for occasion/weather -> fetch data from Supabase
+  const applyOccasionFilters = async () => {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      alert("Supabase not configured properly!");
+      return;
+    }
+
+    if (selectedOccasions.length === 0 && !weatherSelected) {
+      alert("Please select at least one filter!");
+      return;
+    }
+
+    setLoading(true);
+
+    let query = supabase.from("outfit_metadata").select("*");
+
+    // Occasion filter
+    if (selectedOccasions.length > 0) {
+      query = query.in("occasion", selectedOccasions);
+    }
+
+    // Weather filter (if you implement it later)
+    // if (weatherSelected) query = query.eq("weather_based", true);
+
+    const { data, error } = await query;
+
+    setLoading(false);
+
+    if (error) {
+      console.error("❌ Error fetching filtered clothes:", error);
+      alert("Error fetching data");
+    } else {
+      console.log("✅ Filtered clothes:", data);
+      setFilteredResults(data);
+      // auto scroll to results
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+  };
+
+  // 📤 Apply filters for clothes -> show selected items
+  const applyClothesFilters = async () => {
     if (!supabaseUrl || !supabaseAnonKey) {
       alert("Supabase not configured properly!");
       return;
@@ -100,7 +139,7 @@ const Filter = () => {
 
     let query = supabase.from("outfit_metadata").select("*");
 
-    // Occasion filter
+    // Occasion filter (if selected)
     if (selectedOccasions.length > 0) {
       query = query.in("occasion", selectedOccasions);
     }
@@ -142,7 +181,7 @@ const Filter = () => {
 
     let query = supabase.from("outfit_metadata").select("*");
 
-    // Occasion filter
+    // Occasion filter (if selected)
     if (selectedOccasions.length > 0) {
       query = query.in("occasion", selectedOccasions);
     }
@@ -291,7 +330,7 @@ const Filter = () => {
           </div>
           <div style={styles.actionButtonsContainer}>
             <button
-              onClick={applyFilters}
+              onClick={applyClothesFilters}
               style={styles.secondaryButton}
               disabled={loading}
             >
@@ -361,24 +400,22 @@ const Filter = () => {
       
       {selectedTab === "clothes" && renderClothesFilter()}
 
-      {/* Clear Button */}
-      {selectedTab === "clothes" && (
-        <button
-          onClick={clearFilters}
-          style={{
-            ...styles.applyButton,
-            background: '#6a5d7b',
-            marginTop: 20,
-          }}
-        >
-          Clear All Filters
-        </button>
-      )}
+      {/* Clear Button - Always visible */}
+      <button
+        onClick={clearFilters}
+        style={{
+          ...styles.applyButton,
+          background: '#6a5d7b',
+          marginTop: 20,
+        }}
+      >
+        Clear All Filters
+      </button>
 
-      {/* Apply Button for Weather/Occasion tabs */}
+      {/* Apply Button for Weather/Occasion tabs only */}
       {(selectedTab === "weather" || selectedTab === "occasion") && (
         <button
-          onClick={applyFilters}
+          onClick={applyOccasionFilters}
           style={styles.applyButton}
           disabled={loading}
         >
@@ -390,7 +427,7 @@ const Filter = () => {
       {filteredResults.length > 0 && (
         <div style={styles.resultsContainer}>
           <h3 style={{ textAlign: "center", marginBottom: 15 }}>
-            {clothesType ? `Found ${filteredResults.length} ${clothesType === "shirt" ? "Shirt(s)" : "Pant(s)"}` : "Filtered Outfits"}
+            {clothesType ? `Found ${filteredResults.length} ${clothesType === "shirt" ? "Pant(s)" : "Shirt(s)"}` : "Filtered Outfits"}
           </h3>
           <div style={styles.grid}>
             {filteredResults.map((item) => (
@@ -412,7 +449,7 @@ const Filter = () => {
         </div>
       )}
 
-      {filteredResults.length === 0 && loading === false && clothesType && selectedColor && (
+      {filteredResults.length === 0 && loading === false && selectedTab === "clothes" && clothesType && selectedColor && (
         <div style={styles.noResults}>
           <p>No items found. Try different filters!</p>
         </div>
